@@ -1,0 +1,116 @@
+надежность pragma ^0.5.7;
+
+импорт "./ERC20Standard.sol";
+
+контракт NewToken является стандартом ERC20 {
+	конструктор() общедоступный {
+ Общее предложение = 1230000;
+ название = "CATcoin";
+ десятичные дроби = 4;
+ символ = "CAT";
+ версия = "1.0";
+ остатки[msg.отправитель] = Общее количество;
+	}
+}
+надежность pragma ^0.5.7;
+
+безопасный путь в библиотеку {
+
+    функция mul(uint256 a, uint256 b) внутренние чистые возвраты (uint256) {
+        если (a == 0) {
+            возврат 0;
+        }
+
+        uint256 c = a * b;
+        требуется(c / a == b);
+
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b > 0);
+        uint256 c = a / b;
+        
+	return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a);
+
+        return c;
+    }
+
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b != 0);
+        return a % b;
+    }
+}
+
+contract ERC20Standard {
+	using SafeMath for uint256;
+	uint public totalSupply;
+	
+	string public name;
+	uint8 public decimals;
+	string public symbol;
+	string public version;
+	
+	mapping (address => uint256) balances;
+	mapping (address => mapping (address => uint)) allowed;
+
+	//Fix for short address attack against ERC20
+	modifier onlyPayloadSize(uint size) {
+		assert(msg.data.length == size + 4);
+		_;
+	} 
+
+	function balanceOf(address _owner) public view returns (uint balance) {
+		return balances[_owner];
+	}
+
+	function transfer(address _recipient, uint _value) public onlyPayloadSize(2*32) {
+	    require(balances[msg.sender] >= _value && _value > 0);
+	    balances[msg.sender] = balances[msg.sender].sub(_value);
+	    balances[_recipient] = balances[_recipient].add(_value);
+	    emit Transfer(msg.sender, _recipient, _value);        
+        }
+
+	function transferFrom(address _from, address _to, uint _value) public {
+	    require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0);
+            balances[_to] = balances[_to].add(_value);
+            balances[_from] = balances[_from].sub(_value);
+            allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+            emit Transfer(_from, _to, _value);
+        }
+
+	function  approve(address _spender, uint _value) public {
+		allowed[msg.sender][_spender] = _value;
+		emit Approval(msg.sender, _spender, _value);
+	}
+
+	надбавка за функцию(адрес_спендер , адрес_владелец )   возвращает публичное представление ( баланс uint) {
+		возврат разрешен [_владелец] [_транжира];
+	}
+
+	//Событие, которое запускается для регистрации всех переводов в журнале событий этого контракта
+	передача событий(
+		адрес , индексированный из ,
+		адрес проиндексирован_то ,
+ uint _ значение
+		);
+		
+	//Событие, которое запускается всякий раз, когда владелец утверждает новое пособие для транжиры.
+	утверждение события(
+		адрес , индексированный владельцем ,
+		адрес индексированный_спендер ,
+ uint _ значение
+		);
+}
